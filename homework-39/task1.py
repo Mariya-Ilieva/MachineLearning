@@ -121,8 +121,44 @@ class Index:
     def __repr__(self):
         return f'Index({self.data}, name={self.name})'
 
+    def _get_loc_single(self, value):
+        loc = self.index(value)
+
+        if len(loc) == 1:
+            return loc[0]
+        elif len(loc) > 1:
+            return loc
+        else:
+            return None
+
+    def _get_loc_multi(self, values):
+        indices = [self.index(v) for v in values]
+
+        if all(len(idx) == 1 for idx in indices):
+            return tuple(idx[0] for idx in indices)
+        elif all(len(idx) > 1 for idx in indices):
+            return np.array([True if i in idx else False for i in range(len(self.data)) for idx in indices])
+        else:
+            raise ValueError('Mismatch in indexing types')
+
+    def get_loc(self, value):
+        if isinstance(value, tuple) and len(value) > 1:
+            return self._get_loc_multi(value)
+        else:
+            return self._get_loc_single(value)
+
 
 class RangeIndex(Index):
     def __init__(self, start=0, stop=0, step=1, copy=False, name=None):
         data = np.arange(start, stop, step)
         super().__init__(data, name, copy)
+
+
+unique_index = Index(list('abc'))
+print(unique_index.get_loc('b'))
+
+monotonic_index = Index(list('abbc'))
+print(monotonic_index.get_loc('b'))
+
+non_monotonic_index = Index(list('abcb'))
+print(non_monotonic_index.get_loc('b'))
