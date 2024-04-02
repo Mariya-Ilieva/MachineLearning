@@ -1,0 +1,4 @@
+Buffer size is the number of samples (which corresponds to the amount of time)
+it takes for your computer to process any incoming audio signal. A higher buffer
+size will result in greater latency (delay) and the higher it is set (larger number),
+the more noticeable it will become.
